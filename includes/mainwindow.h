@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <QListView>
 #include <QStringListModel>
+#include <QTabWidget>
+#include <QTextEdit>
+#include <QMenuBar>
+#include <QMenu>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,9 +21,30 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
+private:   
+    void createActions(void);
+    void createMenu(void);
+
     Ui::MainWindow *ui;
+
+    QMenu *pFileMenu;
+    QMenu *pHelpMenu;
+
+    QAction *pOpenAction;
+    QAction *pQuitAction;
+
+    QAction *pAboutAction;
+
     QStringListModel *pSectionListModel;
     QListView *pSectionlistView;
+    QMenuBar  *pMyMenuBar;
+    QTextEdit *pInfoDisplay;
+    QTabWidget *pTabWidget;
+
+public slots:
+    void openFile();
+    void quitApp();
+    void showAboutDialog();
+
 };
 #endif // MAINWINDOW_H
