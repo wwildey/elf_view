@@ -8,6 +8,11 @@
 #include <QTextEdit>
 #include <QMenuBar>
 #include <QMenu>
+#include <QFileDialog>
+#include <QFileInfo>
+
+#include "elffile.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +29,8 @@ public:
 private:   
     void createActions(void);
     void createMenu(void);
+
+    ELFFILE *pElfFile;
 
     Ui::MainWindow *ui;
 

@@ -1,7 +1,6 @@
 #include "../includes/mainwindow.h"
 #include "../gui/ui_mainwindow.h"
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -30,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     List << "Item 1" << "Item2" << "Item 3";
     pSectionListModel->setStringList(List);
     pSectionlistView->setModel(pSectionListModel);
+
+    pElfFile = new ELFFILE();
 }
 
 MainWindow::~MainWindow()
@@ -80,7 +81,28 @@ void MainWindow::createMenu(void)
 //********************************
 void MainWindow::openFile(void)
 {
+    QString fileName;
+
     qDebug("Open a file\n");
+    fileName = QFileDialog::getOpenFileName(this,
+        tr("Open File"), "", tr("Files (*)"));
+
+    pInfoDisplay->append("Opening file: " + fileName);
+    QFileInfo fileInfo(fileName);
+    if ( fileInfo.isExecutable() ) {
+        qDebug("fileName %s is an executable file\n", fileName.toStdString().c_str());
+        pInfoDisplay->append("fileName: " + fileName + " is an executable file");
+        // send to ELFFILE
+    }else {
+        qDebug("fileName %s is not an executable file\n", fileName.toStdString().c_str());
+        pInfoDisplay->append("fileName: " + fileName + " is not an executable file");
+    }
+
+    // Check if file is a binary file (executable)
+    qDebug("fileName %s\n", fileName.toStdString().c_str());
+
+    // TODO: Make a function that takes a qstring and calls pInfoDisplay->append
+    pInfoDisplay->append("\nOpening file: " + fileName);
 }
 
 void MainWindow::quitApp(void)

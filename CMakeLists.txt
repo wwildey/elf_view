@@ -8,14 +8,18 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_COMPILER "gcc-10")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-10")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         main.cpp
         src/mainwindow.cpp
+        src/elffile.cpp
         includes/mainwindow.h
         includes/elf.h
+        includes/elffile.h
         gui/mainwindow.ui
 )
 
