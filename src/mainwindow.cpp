@@ -30,12 +30,15 @@ MainWindow::MainWindow(QWidget *parent)
     pSectionListModel->setStringList(List);
     pSectionlistView->setModel(pSectionListModel);
 
-    pElfFile = new ELFFILE();
+//    pElfFile = new ELFFILE();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    if ( pElfFile )
+        delete pElfFile;
     // TODO: Cleanup everything here
     qDebug("Exiting the application from ~MainWindow\n");
 
@@ -92,6 +95,8 @@ void MainWindow::openFile(void)
     if ( fileInfo.isExecutable() ) {
         qDebug("fileName %s is an executable file\n", fileName.toStdString().c_str());
         pInfoDisplay->append("fileName: " + fileName + " is an executable file");
+        pElfFile = new ELFFILE(&fileName);
+
         // send to ELFFILE
     }else {
         qDebug("fileName %s is not an executable file\n", fileName.toStdString().c_str());
