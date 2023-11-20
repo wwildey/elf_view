@@ -77,17 +77,17 @@ struct SHSEGTYPE
 	 {11,         "SHT_DYNSYM",	   "Dynamic linker symbol table"},
 	 {14,         "SHT_INIT_ARRAY",    "Array of constructors"}, 
 	 {15,         "SHT_FINI_ARRAY",	   "Array of destructors"}, 
-   {16,         "SHT_PREINIT_ARRAY", "Array of pre-constructors"}, 
+     {16,         "SHT_PREINIT_ARRAY", "Array of pre-constructors"},
 	 {17,         "SHT_GROUP",         "Section group"}, 
-   {18,         "SHT_SYMTAB_SHNDX",  "Extended section indeces"}, 
+     {18,         "SHT_SYMTAB_SHNDX",  "Extended section indeces"},
 	 {19,         "SHT_NUM",	   "Number of defined types"},
 	 {0x60000000, "SHT_LOOS",          "Start OS-specific "},
 	 {0x6ffffff7, "SHT_GNU_LIBLIST",   "Prelink library list"}, 
 	 {0x6ffffff8, "SHT_CHECKSUM",      "Checksum for DSO content."},
 	 {0x6ffffffa, "SHT_LOSUNW",        "Sun-specific low bound."},  
 	 {0x6ffffffa, "SHT_SUNW_move",     "unknown"},
-   {0x6ffffffb, "SHT_SUNW_COMDAT",   "unknown"},
-   {0x6ffffffc, "SHT_SUNW_syminfo",  "unknown"},
+     {0x6ffffffb, "SHT_SUNW_COMDAT",   "unknown"},
+     {0x6ffffffc, "SHT_SUNW_syminfo",  "unknown"},
 	 {0x6ffffffd, "SHT_GNU_verdef",    "Version definition section"},  
 	 {0x6ffffffe, "SHT_GNU_verneed",   "Version needs section"},  
 	 {0x6fffffff, "SHT_GNU_versym",    "Version symbol table"},  
@@ -205,21 +205,21 @@ const char *Version[] = {"Invalid", "Current"};
 unsigned char ELFMAGIC32[ELFMAGICSIZE] = {0x7f, 0x45, 0x4c, 0x46, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 unsigned char ELFMAGIC64[ELFMAGICSIZE] = {0x7f, 0x45, 0x4c, 0x46, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-typedef struct STRDATA
+typedef struct _STRDATA
 {
   int charindex; // section name string table index 
                  // is actually a index to beginning of string
   int index;
   char *Name;
-  STRDATA *next;
-  STRDATA *prev;
-};
+  _STRDATA *next;
+  _STRDATA *prev;
+}STRDATA;
 
-typedef struct STRTBLS
+typedef struct _STRTBLS
 {
   int TableNum;
   STRDATA *strdata;
-};
+}STRTBLS;
 
 ELFFILE::ELFFILE()
 {
@@ -254,12 +254,12 @@ int ELFFILE::ELFOpen(const QString *fpath)
   //  cout << "len =  " << len << endl;
   if(len != -1) // call not failed
   {
-    target_path[len] = '\0'; // null terminate target path
-    strcpy((char*)fpath->toStdString().c_str(), target_path); // copy true file name for display
+    target_path[len+1] = '\0'; // null terminate target path
+    strncpy((char*)fpath->toStdString().c_str(), target_path, strlen(target_path)); // copy true file name for display
   }
   else
   {
-    strcpy(target_path, fpath->toStdString().c_str());
+    strncpy(target_path, fpath->toStdString().c_str(), strlen(fpath->toStdString().c_str()));
   }
   
   if((fd = open(target_path, O_RDONLY, 0)) <= 0)
@@ -364,17 +364,17 @@ int ELFFILE::ELFRead()
        memcpy(elfPhdrptr, inBuff, sizeof(Elf32_Phdr));
        if(elfPhdrptr->p_type == PT_DYNAMIC)
        {
-           PT_DynamicCount++;
-           if(PT_DynamicCount > 1)
-	   {
-   	     cout << "ERROR: Multiple dynamic segments found! Count: " << PT_DynamicCount << endl;
-             return(-1);
-             
-	   }
-           else
-	   {
-	     PT_Dynamic_Index = ii;
-	   }
+            PT_DynamicCount++;
+            if(PT_DynamicCount > 1)
+            {
+                cout << "ERROR: Multiple dynamic segments found! Count: " << PT_DynamicCount << endl;
+                    return(-1);
+                    
+            }
+                  else
+            {
+              PT_Dynamic_Index = ii;
+            }
        }
        else
        if((elfPhdrptr->p_type == PT_LOAD)  && (elfPhdrptr->p_offset == 0x0))
@@ -549,66 +549,56 @@ int ELFFILE::processStrings(int fd)
       tempstr[charcount] = ch;
    
       charcount++;
-    }
-    else
-    if((ch == 0x0a) || (ch == 0x0d)) // found cr, lf
+    }else if((ch == 0x0a) || (ch == 0x0d)) // found cr, lf
     {
-      if(foundPrintable == true)
-      {
-        tempstr[charcount] = ch;
-        charcount++;
-      }
-    }
-    else
-    {
-      if(foundPrintable == true)
-      {
-        if((ch != 0x00) && (charcount > 1))
-        {
-          tempstr[charcount] = 0x00;
-        }
-        else  
-	if((ch == 0x00) && (charcount > 1)) // found null so may be end of line
-        {
+          if(foundPrintable == true)
+          {
             tempstr[charcount] = ch;
-	}
-        else
-	{
-          strcpy(tempstr, "");
-          charcount = 0;
-          foundPrintable = false;
-          continue;
-	}
-        
-	if((stringdata->f_string = (char *)calloc(charcount + 1, sizeof(char))) == NULL)
-        {
-           printf("ERROR: calloc stringdata->f_string initialization error!\n");
-           return(-1);
-	}
-      
-        strcpy(stringdata->f_string, tempstr);
-        strcpy(tempstr, "");
-        foundPrintable = false;  // end of line so reset
-        //reallocate when a new string is found
-        stringcount++; // next string
-        strdatablocksize++;
+            charcount++;
+          }
+    }else {
+          if(foundPrintable == true)
+          {
+            if((ch != 0x00) && (charcount > 1))
+            {
+              tempstr[charcount] = 0x00;
+            }else if((ch == 0x00) && (charcount > 1)) // found null so may be end of line
+            {
+                tempstr[charcount] = ch;
+            }else {
+              strcpy(tempstr, "");
+              charcount = 0;
+              foundPrintable = false;
+              continue;
+            }
 
-        if((temp = (STRING_DATA *)realloc(stringdataptr, strdatablocksize * sizeof(STRING_DATA))) == NULL)
-        {
-          printf("ERROR!: realloc stringdataptr failed!\n");
-          return(-1);
-        }
-        stringdataptr = temp;
-        stringdata = &stringdataptr[stringcount];
-        charcount = 0;
-        foundPrintable = false;
-      }
-      else
-      {
-        charcount = 0;
-      }
+            if((stringdata->f_string = (char *)calloc(charcount + 1, sizeof(char))) == NULL)
+            {
+               printf("ERROR: calloc stringdata->f_string initialization error!\n");
+               return(-1);
+            }
+
+            strncpy(stringdata->f_string, tempstr, strlen(tempstr));
+            strcpy(tempstr, "");
+            foundPrintable = false;  // end of line so reset
+            //reallocate when a new string is found
+            stringcount++; // next string
+            strdatablocksize++;
+
+            if((temp = (STRING_DATA *)realloc(stringdataptr, strdatablocksize * sizeof(STRING_DATA))) == NULL)
+            {
+              printf("ERROR!: realloc stringdataptr failed!\n");
+              return(-1);
+            }
+            stringdataptr = temp;
+            stringdata = &stringdataptr[stringcount];
+            charcount = 0;
+            foundPrintable = false;
+          }else {
+            charcount = 0;
+          }
     }
-  }
+  }// end while
 
   return(0);
 }
