@@ -1,6 +1,11 @@
 # elf_view
 QT app to view elf file details
 
+Project requires capstone library for disassembly which can be found at:
+https://github.com/capstone-engine/capstone
+
+This library was available as an install package for the Opensuse distribution that was used for development.
+
 capstone exsample from http://www.capstone-engine.org/lang_c.html
 // capstone example make file
 # capstone library name (without prefix 'lib' and suffix '.so')
