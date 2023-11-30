@@ -1,6 +1,8 @@
 #include "../includes/mainwindow.h"
 #include "../gui/ui_mainwindow.h"
 
+#define CODE "\x55\x48\x8b\x05\xb8\x13\x00\x00"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

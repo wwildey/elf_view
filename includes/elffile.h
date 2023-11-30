@@ -12,6 +12,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+// TODO: Move this to the disassembler class when created
+#include <capstone/capstone.h>
+
 using namespace std;
 
 //#include "elfed.h"

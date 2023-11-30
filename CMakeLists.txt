@@ -13,6 +13,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/g++-10")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
 set(PROJECT_SOURCES
         main.cpp
         src/mainwindow.cpp
@@ -23,7 +24,7 @@ set(PROJECT_SOURCES
         gui/mainwindow.ui
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+#if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(elf_view
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
@@ -32,21 +33,22 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 #    set_property(TARGET elf_view APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(elf_view SHARED
-            ${PROJECT_SOURCES}
-        )
+#else()
+#    if(ANDROID)
+#        add_library(elf_view SHARED
+#            ${PROJECT_SOURCES}
+#        )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(elf_view
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
+#    else()
+#        add_executable(elf_view
+#            ${PROJECT_SOURCES}
+#        )
+#    endif()
+#endif()
 
-target_link_libraries(elf_view PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(elf_view PRIVATE Qt${QT_VERSION_MAJOR}::Widgets /usr/lib64/libcapstone.so.4)
+#TARGET_LINK_LIBRARIES(elf_view "-L/usr/lib64/" libcapstone.so)
 
 set_target_properties(elf_view PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
